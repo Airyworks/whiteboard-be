@@ -45,7 +45,7 @@ const execute = (file, args) => {
 
 const execWrap = (file, args) => {
   return new Promise((res, rej) => {
-    exec(`python3 ${file}`, args.join(' '), (err, stdout, stderr) => {
+    exec(`python3 ${file} ` + args.join(' '), (err, stdout, stderr) => {
       if (err)
         rej(err)
       else
@@ -75,7 +75,7 @@ async function checkTask(ctx, next) {
     ctx.response.body = { status: false, error: "no session id fected" }
     return
   }
-  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id])
+  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '-p', `${runPath}`])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
@@ -90,7 +90,7 @@ async function showTask(ctx, next) {
     ctx.response.body = { status: false, error: "no session id fected" }
     return
   }
-  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '--all'])
+  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '-p', `${runPath}`, '--all'])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
@@ -126,7 +126,7 @@ async function testTask(ctx, next) {
   const rename = (new Date()).getTime()
   image.resize(28, 28).greyscale().write(`${picturePath}/${rename}.jpg`)
 
-  const { stdout, stderr } = await execWrap(script.test, ['-d', ctx.session.id, '-f', `${picturePath}/${rename}.jpg`])
+  const { stdout, stderr } = await execWrap(script.test, ['-d', ctx.session.id, '-p', `${runPath}`, '-f', `${picturePath}/${rename}.jpg`])
   if (stderr) {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
