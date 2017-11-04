@@ -60,16 +60,16 @@ async function addTask(ctx, next) {
     ctx.session.id = Math.ceil(Math.random() * 10000000)
   }
 
-console.log(ctx.session.id)
-
   await write(`${runPath}/${ctx.session.id}.graph`, JSON.stringify(raw))
   await write(`${runPath}/${ctx.session.id}.param`, raw.param)
-  const { stdout, stderr } = await execWrap(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
-  if (stderr || stdout == '0') {
+  execWrap(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
+/*  if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
     ctx.response.body = { status: true }
   }
+*/
+  ctx.response.body = { status: true }
 }
 
 async function checkTask(ctx, next) {
@@ -117,7 +117,8 @@ async function testTask(ctx, next) {
   //   })
   // }
 
-  const file = ctx.request.body.files['picture']
+  const file = ctx.request.body.files['file']
+
   if (!file || !file.type.startsWith('image/')) {
     ctx.response.body = { status: false, error: "error picture mime type" }
     return
@@ -128,7 +129,7 @@ async function testTask(ctx, next) {
   const rename = (new Date()).getTime()
   image.resize(28, 28).greyscale().write(`${picturePath}/${rename}.jpg`)
 
-  const { stdout, stderr } = await execWrap(script.test, ['-d', ctx.session.id, '-p', `${runPath}`, '-f', `${picturePath}/${rename}.jpg`])
+  const { stdout, stderr } = await execWrap(script.test, ['-d', ctx.session.id, '-p', `${runPath}`, '-i', `${picturePath}/${rename}.jpg`])
   if (stderr) {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
