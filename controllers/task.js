@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const jimp = require('jimp')
-const { execFile } = require('child_process')
+const { execFile, exec } = require('child_process')
 const script = {
   run: "/work/white-board-cal/run.py",
   status: "/work/white-board-cal/status.py",
@@ -43,6 +43,17 @@ const execute = (file, args) => {
   })
 }
 
+const execWrap = (file, args) => {
+  return new Promise((res, rej) => {
+    exec(`python3 ${file}`, args.join(' '), (err, stdout, stderr) => {
+      if (err)
+        rej(err)
+      else
+        res({ stdout, stderr })
+    })
+  })
+}
+
 async function addTask(ctx, next) {
   const raw = ctx.request.body
   if (!ctx.session.id) {
@@ -51,7 +62,7 @@ async function addTask(ctx, next) {
 
   await write(`${runPath}/${ctx.session.id}.graph`, JSON.stringify(raw))
   await write(`${runPath}/${ctx.session.id}.param`, raw.param)
-  const { stdout, stderr } = await execute(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
+  const { stdout, stderr } = await execWrap(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
@@ -64,7 +75,7 @@ async function checkTask(ctx, next) {
     ctx.response.body = { status: false, error: "no session id fected" }
     return
   }
-  const { stdout, stderr } = await execute(script.status, ['-d', ctx.session.id])
+  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
@@ -79,7 +90,7 @@ async function showTask(ctx, next) {
     ctx.response.body = { status: false, error: "no session id fected" }
     return
   }
-  const { stdout, stderr } = await execute(script.status, ['-d', ctx.session.id, '--all'])
+  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '--all'])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
@@ -115,7 +126,7 @@ async function testTask(ctx, next) {
   const rename = (new Date()).getTime()
   image.resize(28, 28).greyscale().write(`${picturePath}/${rename}.jpg`)
 
-  const { stdout, stderr } = await execute(script.test, ['-d', ctx.session.id, '-f', `${picturePath}/${rename}.jpg`])
+  const { stdout, stderr } = await execWrap(script.test, ['-d', ctx.session.id, '-f', `${picturePath}/${rename}.jpg`])
   if (stderr) {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
