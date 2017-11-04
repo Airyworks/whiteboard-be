@@ -7,8 +7,8 @@ const script = {
   status: "/work/white-board-cal/status.py",
   test: "/work/white-board-cal/test.py"
 }
-const runPath = "/var/run/writeboard"
-const picturePath = "/var/run/writeboard/picture"
+const runPath = "/work/runtime"
+const picturePath = "/work/runtime/picture"
 
 const write = (file, data) => {
   return new Promise((res, rej) => {
@@ -49,9 +49,9 @@ async function addTask(ctx, next) {
     ctx.session.id = Math.ceil(Math.random() * 10000000)
   }
 
-  await write(`${runPath}/${ctx.session.id}/${ctx.session.id}.gragh`, raw)
-  await write(`${runPath}/${ctx.session.id}/${ctx.session.id}.param`, raw.param)
-  const { stdout, stderr } = await execute(script.run, ['-d', ctx.session.id, '-p', `${runPath}/${ctx.session.id}`])
+  await write(`${runPath}/${ctx.session.id}.graph`, JSON.stringify(raw))
+  await write(`${runPath}/${ctx.session.id}.param`, raw.param)
+  const { stdout, stderr } = await execute(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
