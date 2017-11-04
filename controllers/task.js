@@ -3,9 +3,9 @@ const path = require('path')
 const jimp = require('jimp')
 const { execFile } = require('child_process')
 const script = {
-  run: "/path/to/python/script.py",
-  status: "/path/to/python/script.py",
-  test: "/path/to/python/script.py"
+  run: "/work/white-board-cal/run.py",
+  status: "/work/white-board-cal/status.py",
+  test: "/work/white-board-cal/test.py"
 }
 const runPath = "/var/run/writeboard"
 const picturePath = "/var/run/writeboard/picture"
