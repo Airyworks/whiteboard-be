@@ -97,8 +97,7 @@ async function showTask(ctx, next) {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
     let filePath = stdout
-    filePath.replace('\n', '')
-    const data = await read(filePath, 'utf8')
+    const data = await read(filePath.replace('\n', ''), 'utf8')
     ctx.response.body = { status: true, data }
   }
 }
