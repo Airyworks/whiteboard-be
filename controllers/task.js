@@ -60,6 +60,8 @@ async function addTask(ctx, next) {
     ctx.session.id = Math.ceil(Math.random() * 10000000)
   }
 
+console.log(ctx.session.id)
+
   await write(`${runPath}/${ctx.session.id}.graph`, JSON.stringify(raw))
   await write(`${runPath}/${ctx.session.id}.param`, raw.param)
   const { stdout, stderr } = await execWrap(script.run, ['-d', ctx.session.id, '-p', `${runPath}`])
@@ -90,11 +92,12 @@ async function showTask(ctx, next) {
     ctx.response.body = { status: false, error: "no session id fected" }
     return
   }
-  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '-p', `${runPath}`, '--all'])
+  const { stdout, stderr } = await execWrap(script.status, ['-d', ctx.session.id, '-p', `${runPath}`, '--all', '1'])
   if (stderr || stdout == '0') {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
-    const filePath = stdout
+    let filePath = stdout
+    filePath.replace('\n', '')
     const data = await read(filePath, 'utf8')
     ctx.response.body = { status: true, data }
   }
