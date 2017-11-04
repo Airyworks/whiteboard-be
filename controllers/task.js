@@ -7,8 +7,8 @@ const script = {
   status: "/work/white-board-cal/status.py",
   test: "/work/white-board-cal/test.py"
 }
-const runPath = "/var/run/writeboard"
-const picturePath = "/var/run/writeboard/picture"
+const runPath = "/work/runtime"
+const picturePath = "/work/runtime/picture"
 
 const write = (file, data) => {
   return new Promise((res, rej) => {
