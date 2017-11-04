@@ -48,7 +48,8 @@ async function addTask(ctx, next) {
   if (!ctx.session.id) {
     ctx.session.id = Math.ceil(Math.random() * 10000000)
   }
-  await write(`${runPath}/${ctx.session.id}/${ctx.session.id}.gragh`, raw.graph)
+
+  await write(`${runPath}/${ctx.session.id}/${ctx.session.id}.gragh`, raw)
   await write(`${runPath}/${ctx.session.id}/${ctx.session.id}.param`, raw.param)
   const { stdout, stderr } = await execute(script.run, ['-d', ctx.session.id, '-p', `${runPath}/${ctx.session.id}`])
   if (stderr || stdout == '0') {
