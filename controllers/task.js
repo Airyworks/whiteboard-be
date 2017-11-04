@@ -1,7 +1,6 @@
 const fs = require('fs')
 const path = require('path')
 const jimp = require('jimp')
-const mime = require('mime')
 const { execFile } = require('child_process')
 const script = {
   run: "/path/to/python/script.py",
@@ -69,8 +68,8 @@ async function checkTask(ctx, next) {
     ctx.response.body = { status: false, error: "run python script error" }
   } else {
     const out = JSON.parse(stdout)
-    const { process, acc, loss, iter } = out
-    ctx.response.body = { status: true, process, acc, loss, iter }
+    const { process, acc, loss, iter, complete } = out
+    ctx.response.body = { status: true, process, acc, loss, iter, complete }
   }
 }
 
